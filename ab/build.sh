@@ -33,4 +33,19 @@ build_one() { # repo ref label
 
 build_one "$1" "$2" a
 build_one "$3" "$4" b
-echo "run: python3 $HERE/run_all.py"
+python3 - "$HERE" << 'EOF'
+import gzip, json, sys
+from pathlib import Path
+h = Path(sys.argv[1])
+rec = {}
+for label in ("a", "b"):
+    p = h / f"site-{label}" / "app.wasm"
+    raw = p.stat().st_size
+    with open(p, "rb") as f:
+        gz = len(gzip.compress(f.read(), 9))
+    rec[label] = {"raw": raw, "gzip9": gz}
+(h / "bundle.json").write_text(json.dumps(rec, indent=1))
+print(f"bundle A: {rec['a']['raw']} raw / {rec['a']['gzip9']} gzip-9")
+print(f"bundle B: {rec['b']['raw']} raw / {rec['b']['gzip9']} gzip-9")
+EOF
+echo "run: python3 $HERE/run_all.py  &&  python3 $HERE/report.py"

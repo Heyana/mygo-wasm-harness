@@ -43,10 +43,12 @@ pip install pillow numpy
 python3 pd/regress.py before after
 # 6 张截图应全部 identical；两版 heap 应无差别
 
-# --- ab：路线 A/B（约 8 分钟，6 轮 x 20s+）---
+# --- ab：路线 A/B 对比（约 8 分钟，6 轮 x 20s+）---
 ./ab/build.sh ~/mygo web-wasm ~/mygo-upstream v0.5.5
 python3 ab/run_all.py
-# 每轮输出 fps / p50 / p95 / jsheap / goheap；结果存 ab-rN-{A,B}.json
+python3 ab/report.py
+# 一键出三组数字：包体（raw/gzip）+ 帧率（fps/p95/慢帧率）+ 内存（js堆/go堆）
+# 每轮原始 JSON 存 ab-rN-{A,B}.json，可复核
 ```
 
 构建脚本都用 git worktree，不会动你的工作树。`site-*` 目录是构建产物，已 gitignore。
